@@ -221,7 +221,8 @@
             "Key": "Name",
             "Value": "EgnyteBackup Server"
           }
-        ],
+        ]
+        },
       "Metadata": {
         "AWS::CloudFormation::Designer": {
           "id": "e7de9cba-1002-4015-a962-d888942b0842"
@@ -244,12 +245,12 @@
             "2-run": {
                 "commands": {
                   "1-install-egnyte-drive" : {
-                    "command" : "C:\\install\\EgnyteDrive_1.4.5_46.msi  /qn /L*V \"C:\install\ED-install.log\""
+                    "command" : "C:\\install\\EgnyteDrive_1.4.5_46.msi /qn /L*V \"C:\\install\\ED-install.log\""
                   }
                 }
-            },
-        
-        },
+            }
+        }
+      },
       "DependsOn": [
         "IAMIPEgnyteBackup",
         "EC2SGEgnyteBackup"
