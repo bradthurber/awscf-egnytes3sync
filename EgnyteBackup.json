@@ -1,0 +1,362 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "This template enables creation of an EC2 Windows stack dedicated to backing up an Egnyte domain to an AWS S3 bucket",
+  "Metadata": {
+    "AWS::CloudFormation::Designer": {
+      "e5df7e5f-fee3-4144-b1f7-c6be631a2a8e": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 380,
+          "y": 150
+        },
+        "z": 0,
+        "embeds": []
+      },
+      "349aeb1b-874c-43e3-a335-3d8f3a23c49d": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 210,
+          "y": 180
+        },
+        "z": 0,
+        "embeds": [],
+        "isassociatedwith": [
+          "1ded762f-5401-4b36-80ca-00642a6c10a7"
+        ],
+        "dependson": [
+          "1ded762f-5401-4b36-80ca-00642a6c10a7",
+          "e5df7e5f-fee3-4144-b1f7-c6be631a2a8e"
+        ],
+        "isrelatedto": [
+          "e5df7e5f-fee3-4144-b1f7-c6be631a2a8e"
+        ]
+      },
+      "1ded762f-5401-4b36-80ca-00642a6c10a7": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 20,
+          "y": 180
+        },
+        "z": 0,
+        "embeds": []
+      },
+      "e7de9cba-1002-4015-a962-d888942b0842": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -30,
+          "y": 10
+        },
+        "z": 0,
+        "embeds": [],
+        "ismemberof": [
+          "6c1bbb30-d79d-411b-b5e4-dc4ff1eca5c4"
+        ],
+        "dependson": [
+          "52d8ef1b-ebd4-4cd0-9508-bb92775a3c58",
+          "6c1bbb30-d79d-411b-b5e4-dc4ff1eca5c4"
+        ],
+        "isrelatedto": [
+          "52d8ef1b-ebd4-4cd0-9508-bb92775a3c58",
+          "e5df7e5f-fee3-4144-b1f7-c6be631a2a8e"
+        ]
+      },
+      "52d8ef1b-ebd4-4cd0-9508-bb92775a3c58": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": -130,
+          "y": 110
+        },
+        "z": 0,
+        "embeds": [],
+        "dependson": [
+          "1ded762f-5401-4b36-80ca-00642a6c10a7"
+        ]
+      },
+      "6c1bbb30-d79d-411b-b5e4-dc4ff1eca5c4": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 130,
+          "y": 50
+        },
+        "z": 0,
+        "embeds": []
+      }
+    }
+  },
+  "Resources": {
+    "IAMREgnyteBackup": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/"
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "1ded762f-5401-4b36-80ca-00642a6c10a7"
+        }
+      }
+    },
+    "IAMPEgnyteBackup": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "EgnyteBackup",
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "s3:*",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "S3BEgnyteBackup"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "IAMREgnyteBackup"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "349aeb1b-874c-43e3-a335-3d8f3a23c49d"
+        }
+      },
+      "DependsOn": [
+        "IAMREgnyteBackup",
+        "S3BEgnyteBackup"
+      ]
+    },
+    "IAMIPEgnyteBackup": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {},
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "52d8ef1b-ebd4-4cd0-9508-bb92775a3c58"
+        }
+      },
+      "DependsOn": [
+        "IAMREgnyteBackup"
+      ]
+    },
+    "S3BEgnyteBackup": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {},
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "e5df7e5f-fee3-4144-b1f7-c6be631a2a8e"
+        }
+      }
+    },
+    "EC2IEgnyteBackup": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "IamInstanceProfile": {
+          "Ref": "IAMIPEgnyteBackup"
+        },
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SourceDestCheck": "true",
+        "ImageId": {
+          "Fn::FindInMap": [
+            "Win2016BaseRegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            "AMI"
+          ]
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "EC2SGEgnyteBackup"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "EgnyteBackup Server"
+          }
+        ],
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "e7de9cba-1002-4015-a962-d888942b0842"
+        },
+        
+        "AWS::CloudFormation::Init": {
+            "configSets": {
+                "config": [
+                    "1-prep",
+                    "2-run"
+                ]
+            },
+            "1-prep": {
+                "files": {
+                  "C:\\install\\EgnyteDrive_1.4.5_46.msi" : {
+                    "source" : "https://egnyte-cdn.egnyte.com/egnytedrive/win/en-us/1.4.5/EgnyteDrive_1.4.5_46.msi"
+                    }
+                }
+            },
+            "2-run": {
+                "commands": {
+                  "1-install-egnyte-drive" : {
+                    "command" : "C:\\install\\EgnyteDrive_1.4.5_46.msi  /qn /L*V \"C:\install\ED-install.log\""
+                  }
+                }
+            },
+        
+        },
+      "DependsOn": [
+        "IAMIPEgnyteBackup",
+        "EC2SGEgnyteBackup"
+      ]
+    },
+    "EC2SGEgnyteBackup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "EgnyteBackup allow RDP from VPN",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3389",
+            "ToPort": "3389",
+            "CidrIp": {
+              "Ref": "OpenVPNSecurityGroup"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "6c1bbb30-d79d-411b-b5e4-dc4ff1eca5c4"
+        }
+      }
+    }
+  },
+  "Parameters": {
+    "EgnyteDomain": {
+      "Description": "Egnyte domain to backup - should not include the egnyte.com part of the domain",
+      "Type": "String",
+      "AllowedPattern": "([A-Za-z0-9-]{1,20})",
+      "ConstraintDescription": "Domain must only contain alphanumeric characters and up to 20 characters long."
+    },
+    "EgnyteUsername": {
+      "Description": "A username in the Egnyte domain with Read-only access to all files",
+      "Type": "String"
+    },
+    "EgnytePassword": {
+      "Description": "The Egnyte user password",
+      "Type": "String"
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    },
+    "InstanceType": {
+      "Description": "Choose an instance type. To keep pricing down use default of t2.micro.",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "t2.large",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlarge",
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge"
+      ]
+    },
+    "VPCId": {
+      "Description": "The VPC you wish to create the backup instance server in",
+      "Type": "AWS::EC2::VPC::Id",
+      "ConstraintDescription": "Must be a valid VPC"
+    },
+    "InstanceSubnet": {
+      "Description": "The subnet you wish to create the backup instance server in - this should be a PRIVATE subnet",
+      "Type": "AWS::EC2::Subnet::Id",
+      "ConstraintDescription": "Must be a valid Subnet"
+    },
+    "OpenVPNSecurityGroup": {
+      "Description": "The user security group used by the OpenVPN server. This allows RDP access to this instance",
+      "Type": "AWS::EC2::SecurityGroup::Id",
+      "ConstraintDescription": "Must be a valid security group"
+    }
+  },
+  "Mappings": {
+    "Win2016BaseRegionMap": {
+      "us-east-1": {
+        "AMI": "ami-b06249a7"
+      },
+      "us-west-1": {
+        "AMI": "ami-d3a8fdb3"
+      },
+      "us-west-2": {
+        "AMI": "ami-b9b71ad9"
+      }
+    }
+  },
+  "Outputs": {
+    "EgnyteDomain": {
+      "Description": "The Egnyte Domain we are backing up",
+      "Value": {
+        "Ref": "EgnyteDomain"
+      }
+    },
+    "BucketName": {
+      "Description": "The S3 Bucket we are backing Egnyte up to.",
+      "Value": {
+        "Ref": "S3BEgnyteBackup"
+      }
+    }
+  }
+}
