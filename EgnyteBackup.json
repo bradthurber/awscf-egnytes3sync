@@ -83,6 +83,9 @@
         },
         "z": 0,
         "embeds": [],
+        "isassociatedwith": [
+          "1ded762f-5401-4b36-80ca-00642a6c10a7"
+        ],
         "dependson": [
           "1ded762f-5401-4b36-80ca-00642a6c10a7"
         ]
@@ -170,7 +173,14 @@
     },
     "IAMIPEgnyteBackup": {
       "Type": "AWS::IAM::InstanceProfile",
-      "Properties": {},
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "IAMREgnyteBackup"
+          }
+        ]
+      },
       "Metadata": {
         "AWS::CloudFormation::Designer": {
           "id": "52d8ef1b-ebd4-4cd0-9508-bb92775a3c58"
@@ -192,6 +202,9 @@
     "EC2IEgnyteBackup": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
+        "SubnetId": {
+          "Ref": "InstanceSubnet"
+        },
         "InstanceType": {
           "Ref": "InstanceType"
         },
@@ -211,7 +224,7 @@
             "AMI"
           ]
         },
-        "SecurityGroups": [
+        "SecurityGroupIds": [
           {
             "Ref": "EC2SGEgnyteBackup"
           }
@@ -222,33 +235,32 @@
             "Value": "EgnyteBackup Server"
           }
         ]
-        },
+      },
       "Metadata": {
         "AWS::CloudFormation::Designer": {
           "id": "e7de9cba-1002-4015-a962-d888942b0842"
         },
-        
         "AWS::CloudFormation::Init": {
-            "configSets": {
-                "config": [
-                    "1-prep",
-                    "2-run"
-                ]
-            },
-            "1-prep": {
-                "files": {
-                  "C:\\install\\EgnyteDrive_1.4.5_46.msi" : {
-                    "source" : "https://egnyte-cdn.egnyte.com/egnytedrive/win/en-us/1.4.5/EgnyteDrive_1.4.5_46.msi"
-                    }
-                }
-            },
-            "2-run": {
-                "commands": {
-                  "1-install-egnyte-drive" : {
-                    "command" : "C:\\install\\EgnyteDrive_1.4.5_46.msi /qn /L*V \"C:\\install\\ED-install.log\""
-                  }
-                }
+          "configSets": {
+            "config": [
+              "1-prep",
+              "2-run"
+            ]
+          },
+          "1-prep": {
+            "files": {
+              "C:\\install\\EgnyteDrive_1.4.5_46.msi": {
+                "source": "https://egnyte-cdn.egnyte.com/egnytedrive/win/en-us/1.4.5/EgnyteDrive_1.4.5_46.msi"
+              }
             }
+          },
+          "2-run": {
+            "commands": {
+              "1-install-egnyte-drive": {
+                "command": "C:\\install\\EgnyteDrive_1.4.5_46.msi /qn /L*V \"C:\\install\\ED-install.log\""
+              }
+            }
+          }
         }
       },
       "DependsOn": [
@@ -260,12 +272,15 @@
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "EgnyteBackup allow RDP from VPN",
+        "VpcId": {
+          "Ref": "VPCId"
+        },
         "SecurityGroupIngress": [
           {
             "IpProtocol": "tcp",
             "FromPort": "3389",
             "ToPort": "3389",
-            "CidrIp": {
+            "SourceSecurityGroupId": {
               "Ref": "OpenVPNSecurityGroup"
             }
           }
@@ -323,7 +338,7 @@
       "ConstraintDescription": "Must be a valid VPC"
     },
     "InstanceSubnet": {
-      "Description": "The subnet you wish to create the backup instance server in - this should be a PRIVATE subnet",
+      "Description": "The subnet you wish to create this Egnyte Backup instance server in - this should be a PRIVATE subnet",
       "Type": "AWS::EC2::Subnet::Id",
       "ConstraintDescription": "Must be a valid Subnet"
     },

@@ -1,0 +1,34 @@
+[
+  {
+    "ParameterKey": "EgnyteDomain",
+    "ParameterValue": "csinternal"
+  },
+    {
+    "ParameterKey": "EgnytePassword",
+    "ParameterValue": "egpass"
+  },
+    {
+    "ParameterKey": "EgnyteUsername",
+    "ParameterValue": "eguser"
+  },
+    {
+    "ParameterKey": "InstanceSubnet",
+    "ParameterValue": "subnet-fa9a759d"
+  },
+    {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "t2.micro"
+  },
+    {
+    "ParameterKey": "KeyName",
+    "ParameterValue": "cs"
+  },
+    {
+    "ParameterKey": "OpenVPNSecurityGroup",
+    "ParameterValue": "sg-0e6f5877"
+  },
+    {
+    "ParameterKey": "VPCId",
+    "ParameterValue": "vpc-b65694d1"
+  }
+]
